@@ -1,34 +1,50 @@
 
-import type { NextAuthConfig } from 'next-auth';
 // src/lib/auth.config.ts
+import type { NextAuthConfig } from 'next-auth';
+
 export const authConfig = {
   pages: {
     signIn: '/login',
   },
-  // الميدلوير فقط
+
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const pathname = nextUrl.pathname;
 
-      const isProtectedPath =
-        pathname.startsWith('/dashboard') ||
-        pathname === '/logout' ||
-        pathname.startsWith('/admin') ||
-        pathname.startsWith('/merchant');
+      // المسارات المحمية
+      const protectedPaths = [
+        '/dashboard',
+        '/logout',
+        '/admin',
+        '/merchant'
+      ];
 
-      if (isProtectedPath && !isLoggedIn) return false;
+      const isProtected = protectedPaths.some(path => pathname.startsWith(path)
+      );
 
-      // توجيه تلقائي حسب الدور بعد تسجيل الدخول
-      if (isLoggedIn && pathname === '/login') {
-        const role = auth.user?.role;
-        if (role === 'admin') return Response.redirect(new URL('/admin/dashboard', nextUrl));
-        if (role === 'merchant') return Response.redirect(new URL('/merchant/dashboard', nextUrl));
-        return Response.redirect(new URL('/dashboard', nextUrl));
+      // إذا حاول المستخدم الوصول لصفحة محمية ولم يسجل الدخول
+      if (isProtected && !isLoggedIn) {
+        return false;
+      }
+
+      // إعادة توجيه المستخدم المسجل الدخول بعيدًا عن صفحات المصادقة
+      if (isLoggedIn) {
+        if (pathname === '/login' || pathname === '/signup') {
+          const role = auth.user?.role || 'user';
+
+          // إعادة التوجيه بناءً على الدور
+          if (role === 'admin') {
+            return Response.redirect(new URL('/admin/dashboard', nextUrl));
+          } else if (role === 'merchant') {
+            return Response.redirect(new URL('/merchant/dashboard', nextUrl));
+          }
+          return Response.redirect(new URL('/dashboard', nextUrl));
+        }
       }
 
       return true;
     },
   },
-  providers: [], // سيتم ملؤها من auth.ts
+  providers: []
 } satisfies NextAuthConfig;

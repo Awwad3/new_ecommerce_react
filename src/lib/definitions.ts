@@ -1,4 +1,5 @@
-import { z } from 'zod'
+ // src/lib/definitions.ts
+ import { z } from 'zod'
  
 export const SignupFormSchema = z.object({
   name: z
