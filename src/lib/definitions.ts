@@ -15,6 +15,7 @@ export const SignupFormSchema = z.object({
       message: 'Contain at least one special character.',
     })
     .trim(),
+    role_id: z.coerce.number().int().positive('يجب اختيار دور'), // 👈 جديد
 })
  
 export type FormState =
@@ -23,6 +24,7 @@ export type FormState =
         name?: string[]
         email?: string[]
         password?: string[]
+        role_id?: string[]
       }
       message?: string
     }

@@ -11,6 +11,7 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
+    role_id: formData.get('role_id'),
   };
 
   // التحقق من الحقول
@@ -22,7 +23,7 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
     };
   }
 
-  const { name, email, password } = validatedFields.data;
+  const { name, email, password, role_id } = validatedFields.data;
 
   // التحقق إذا كان المستخدم موجودًا مسبقًا
   const existingUser = await prisma.users.findUnique({
@@ -46,7 +47,7 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
       name,
       email,
       password: hashedPassword,
-      role_id: 2, // اختر الدور المناسب مثل "مستخدم عادي"
+      role_id,
     },
   });
 
